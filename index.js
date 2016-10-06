@@ -83,8 +83,15 @@ var createMenu = function (page) {
   fetchItemsByPage(page).then(function (values) {
     currentPage = page;
     var items = [];
+    var maxIndex = (currentPage - 1) * storiesPerPage + values.length;
+    var maxIndexDigit = new String(maxIndex).length;
     values.forEach(function (v, i) {
       var index = (currentPage - 1) * storiesPerPage + (i + 1);
+      indexDigit = new String(index).length;
+      var diff = maxIndexDigit - indexDigit;
+      for (var j = 0; j < diff; j++) {
+        index = ' ' + index;
+      }
       items.push({
         content: index + ') ' + v.title,
         value: [
@@ -155,9 +162,13 @@ var log = function (msg) {
   var now = new Date();
   var year = new String(now.getFullYear());
   var month = new String(now.getMonth() + 1);
-  if (month.length === 1) month = '0' + month;
+  if (month.length === 1) {
+    month = '0' + month;
+  }
   var date = new String(now.getDate());
-  if (date.length === 1) date = '0' + date;
+  if (date.length === 1) {
+    date = '0' + date;
+  }
   var filename = 'hn-cli-' + year + month + date;
   fs.appendFile('/tmp/' + filename,
                 msg + '\n',
@@ -169,12 +180,20 @@ var formatDate = function (ts) {
   var dateObj = new Date(ts);
   var year = new String(dateObj.getFullYear());
   var month = new String(dateObj.getMonth() + 1);
-  if (month.length === 1) month = '0' + month;
+  if (month.length === 1) {
+    month = '0' + month;
+  }
   var date = new String(dateObj.getDate());
-  if (date.length === 1) date = '0' + date;
+  if (date.length === 1) {
+    date = '0' + date;
+  }
   var hour = new String(dateObj.getHours());
-  if (hour.length === 1) hour = '0' + hour;
+  if (hour.length === 1) {
+    hour = '0' + hour;
+  }
   var minute = new String(dateObj.getMinutes());
-  if (minute.length === 1) minute = '0' + minute;
+  if (minute.length === 1) {
+    minute = '0' + minute;
+  }
   return year + '-' + month + '-' + date + ' ' + hour + ':' + minute;
 };
