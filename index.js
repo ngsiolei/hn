@@ -35,7 +35,7 @@ var updateStoryMeta = function () {
 
 var updateStatus = function (msg) {
   if (!msg) {
-    msg = 'j: down | k: up | h: prev page | l: next page | CTRL+C: exit';
+    msg = 'j: down | k: up | h: prev page | l: next page | ctrl-c: exit';
   }
   msg = ' ' + msg;
   term.saveCursor();
@@ -92,7 +92,7 @@ var createMenu = function (page) {
           v.by,
           v.time,
           v.score ? v.score : 0,
-          v.kids ? v.kids.length : 0
+          v.descendants ? v.descendants : 0
         ]
       });
     });
