@@ -18,11 +18,11 @@ var updateStoryMeta = function () {
   if (columnMenu && columnMenu.focusChild) {
     var v = columnMenu.focusChild.value;
     var msg = util.format(
-      'by %s, at %s, score: %s, comments: %s',
-      v[1],
-      formatDate(v[2]),
-      v[3],
-      v[4]
+      'by %s, at %s, score: %s, comments: %s (c: open comment page)',
+      v.by,
+      formatDate(v.time),
+      v.score ? v.score : 0,
+      v.descendants ? v.descendants : 0
     );
   } else {
     msg = '';
@@ -60,6 +60,16 @@ term.on('key', function (key) {
     case 'l':
       createMenu(currentPage + 1);
       break;
+    case 'c':
+      if (columnMenu && columnMenu.focusChild) {
+        var v = columnMenu.focusChild.value;
+        var commentLink = util.format(
+          'https://news.ycombinator.com/item?id=%s',
+          v.id
+        );
+        open(commentLink);
+      }
+      break;
     default:
       updateStoryMeta();
   }
@@ -94,13 +104,7 @@ var createMenu = function (page) {
       }
       items.push({
         content: index + ') ' + v.title,
-        value: [
-          v.url,
-          v.by,
-          v.time,
-          v.score ? v.score : 0,
-          v.descendants ? v.descendants : 0
-        ]
+        value: v
       });
     });
     if (columnMenu && columnMenu.destroy && typeof columnMenu.destroy === 'function') {
@@ -114,7 +118,7 @@ var createMenu = function (page) {
       items: items,
     });
     columnMenu.on('submit', function (value) {
-      open(value[0]);
+      open(value.url);
     });
     document.giveFocusTo(columnMenu);
     updateStatus();
