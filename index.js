@@ -118,7 +118,15 @@ var createMenu = function (page) {
       items: items,
     });
     columnMenu.on('submit', function (value) {
-      open(value.url);
+      if (value.url) {
+        open(value.url);
+      } else if (value.id) {
+        var commentLink = util.format(
+          'https://news.ycombinator.com/item?id=%s',
+          value.id
+        );
+        open(commentLink);
+      }
     });
     document.giveFocusTo(columnMenu);
     updateStatus();
