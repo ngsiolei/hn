@@ -1,31 +1,30 @@
-var fs = require('fs');
-var util = require('util');
-var firebase = require('firebase');
-var open = require('open');
-var termkit = require('terminal-kit');
-var term = termkit.terminal;
-var document = term.createDocument();
-var columnMenu = null;
-var itemsCache = {};
-var topStoryIds = [];
-var storiesPerPage = 10;
-var currentPage = 1;
+const fs = require('fs');
+const util = require('util');
+const firebase = require('firebase');
+const open = require('open');
+const termkit = require('terminal-kit');
+const term = termkit.terminal;
+const document = term.createDocument();
+let columnMenu = null;
+let itemsCache = {};
+let topStoryIds = [];
+let storiesPerPage = 10;
+let currentPage = 1;
 
 term.grabInput({mouse: false});
 term.clear();
 
-var updateStoryMeta = function () {
+const updateStoryMeta = () => {
+  let msg = '';
   if (columnMenu && columnMenu.focusChild) {
-    var v = columnMenu.focusChild.value;
-    var msg = util.format(
+    const v = columnMenu.focusChild.value;
+    msg = util.format(
       'by %s, at %s, score: %s, comments: %s (c: open comment page)',
       v.by,
       formatDate(v.time),
       v.score ? v.score : 0,
       v.descendants ? v.descendants : 0
     );
-  } else {
-    msg = '';
   }
   msg = ' ' + msg;
   term.saveCursor();
@@ -33,7 +32,7 @@ var updateStoryMeta = function () {
   term.restoreCursor();
 };
 
-var updateStatus = function (msg) {
+const updateStatus = (msg) => {
   if (!msg) {
     msg = 'j: down | k: up | h: prev page | l: next page | ctrl-c: exit';
   }
@@ -43,7 +42,7 @@ var updateStatus = function (msg) {
   term.restoreCursor();
 };
 
-term.on('key', function (key) {
+term.on('key', (key) => {
   switch (key) {
     case 'CTRL_C':
       term.grabInput( false );
@@ -62,8 +61,8 @@ term.on('key', function (key) {
       break;
     case 'c':
       if (columnMenu && columnMenu.focusChild) {
-        var v = columnMenu.focusChild.value;
-        var commentLink = util.format(
+        const v = columnMenu.focusChild.value;
+        const commentLink = util.format(
           'https://news.ycombinator.com/item?id=%s',
           v.id
         );
@@ -78,28 +77,28 @@ term.on('key', function (key) {
 firebase.initializeApp({
   databaseURL: 'https://hacker-news.firebaseio.com'
 });
-var db = firebase.database();
+const db = firebase.database();
 updateStatus('downloading...');
 
-db.ref('v0/topstories').once('value', function (snapshot) {
+db.ref('v0/topstories').once('value', (snapshot) => {
   topStoryIds = snapshot.val();
   log('topStoryIds fetched');
   createMenu(1);
-}, function (err) {
+}, (err) => {
   log(err);
 });
 
-var createMenu = function (page) {
-  fetchItemsByPage(page).then(function (values) {
+const createMenu = (page) => {
+  fetchItemsByPage(page).then((values) => {
     currentPage = page;
-    var items = [];
-    var maxIndex = (currentPage - 1) * storiesPerPage + values.length;
-    var maxIndexDigit = new String(maxIndex).length;
-    values.forEach(function (v, i) {
-      var index = (currentPage - 1) * storiesPerPage + (i + 1);
+    let items = [];
+    const maxIndex = (currentPage - 1) * storiesPerPage + values.length;
+    const maxIndexDigit = new String(maxIndex).length;
+    values.forEach((v, i) => {
+      let index = (currentPage - 1) * storiesPerPage + (i + 1);
       indexDigit = new String(index).length;
-      var diff = maxIndexDigit - indexDigit;
-      for (var j = 0; j < diff; j++) {
+      const diff = maxIndexDigit - indexDigit;
+      for (let j = 0; j < diff; j++) {
         index = ' ' + index;
       }
       items.push({
@@ -107,7 +106,9 @@ var createMenu = function (page) {
         value: v
       });
     });
-    if (columnMenu && columnMenu.destroy && typeof columnMenu.destroy === 'function') {
+    if (columnMenu &&
+        columnMenu.destroy &&
+        'function' === typeof columnMenu.destroy) {
       columnMenu.destroy();
     }
     columnMenu = termkit.ColumnMenu.create({
@@ -117,11 +118,11 @@ var createMenu = function (page) {
       parent: document,
       items: items,
     });
-    columnMenu.on('submit', function (value) {
+    columnMenu.on('submit', (value) => {
       if (value.url) {
         open(value.url);
       } else if (value.id) {
-        var commentLink = util.format(
+        const commentLink = util.format(
           'https://news.ycombinator.com/item?id=%s',
           value.id
         );
@@ -131,79 +132,79 @@ var createMenu = function (page) {
     document.giveFocusTo(columnMenu);
     updateStatus();
     updateStoryMeta();
-  }, function (reason) {
+  }, (reason) => {
     log(reason);
   });
 };
 
-var fetchItem = function (id) {
-  return new Promise(function (resolve, reject) {
+const fetchItem = (id) => {
+  return new Promise((resolve, reject) => {
     if (itemsCache[id]) {
       log('hitting item ' + id + ' in cache');
       resolve(itemsCache[id]);
     } else {
       log('fetching item ' + id);
-      db.ref('v0/item/' + id).once('value', function (snapshot) {
+      db.ref('v0/item/' + id).once('value', (snapshot) => {
         itemsCache[id] = snapshot.val();
         resolve(itemsCache[id]);
-      }, function (err) {
+      }, (err) => {
         reject(err);
       });
     }
   });
 };
 
-var fetchItems = function (ids) {
+const fetchItems = (ids) => {
   if (!ids || !ids.length) {
     return Promise.resolve([]);
   } else {
-    return Promise.all(ids.map(function (id) {
+    return Promise.all(ids.map((id) => {
       return fetchItem(id);
     }));
   }
 };
 
-var fetchItemsByPage = function (page) {
-  var start = (page - 1) * storiesPerPage;
-  var end = page * storiesPerPage;
-  var ids = topStoryIds.slice(start, end);
+const fetchItemsByPage = (page) => {
+  const start = (page - 1) * storiesPerPage;
+  const end = page * storiesPerPage;
+  const ids = topStoryIds.slice(start, end);
   return fetchItems(ids);
 };
 
-var log = function (msg) {
-  var now = new Date();
-  var year = new String(now.getFullYear());
-  var month = new String(now.getMonth() + 1);
+const log = (msg) => {
+  const now = new Date();
+  const year = new String(now.getFullYear());
+  let month = new String(now.getMonth() + 1);
   if (month.length === 1) {
     month = '0' + month;
   }
-  var date = new String(now.getDate());
+  let date = new String(now.getDate());
   if (date.length === 1) {
     date = '0' + date;
   }
-  var filename = 'hn-cli-' + year + month + date;
+  const filename = 'hn-cli-' + year + month + date;
   fs.appendFile('/tmp/' + filename,
                 msg + '\n',
-                function () {});
+                () => {});
 };
 
-var formatDate = function (ts) {
+const formatDate = (ts) => {
   ts = ts * 1000;
-  var dateObj = new Date(ts);
-  var year = new String(dateObj.getFullYear());
-  var month = new String(dateObj.getMonth() + 1);
+  const dateObj = new Date(ts);
+  const year = new String(dateObj.getFullYear());
+  let month = new String(dateObj.getMonth() + 1);
   if (month.length === 1) {
     month = '0' + month;
   }
-  var date = new String(dateObj.getDate());
+  let date = new String(dateObj.getDate());
   if (date.length === 1) {
     date = '0' + date;
   }
-  var hour = new String(dateObj.getHours());
+  let hour = new String(dateObj.getHours());
   if (hour.length === 1) {
     hour = '0' + hour;
   }
-  var minute = new String(dateObj.getMinutes());
+  let minute = new String(dateObj.getMinutes());
   if (minute.length === 1) {
     minute = '0' + minute;
   }
