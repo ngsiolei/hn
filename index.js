@@ -10,6 +10,8 @@ let itemsCache = {};
 let topStoryIds = [];
 let storiesPerPage = 10;
 let currentPage = 1;
+const logFilePrefix = 'hn-cli-';
+const logBasePath = '/tmp/';
 
 term.grabInput({mouse: false});
 term.clear();
@@ -21,7 +23,7 @@ const updateStoryMeta = () => {
     msg = util.format(
       'by %s, at %s, score: %s, comments: %s (c: open comment page)',
       v.by,
-      formatDate(v.time),
+      getDateStr(new Date(v.time * 1000)),
       v.score ? v.score : 0,
       v.descendants ? v.descendants : 0
     );
@@ -82,7 +84,7 @@ updateStatus('downloading...');
 
 db.ref('v0/topstories').once('value', (snapshot) => {
   topStoryIds = snapshot.val();
-  log('topStoryIds fetched');
+  log('top story IDs fetched');
   createMenu(1);
 }, (err) => {
   log(err);
@@ -173,24 +175,18 @@ const fetchItemsByPage = (page) => {
 
 const log = (msg) => {
   const now = new Date();
-  const year = new String(now.getFullYear());
-  let month = new String(now.getMonth() + 1);
-  if (month.length === 1) {
-    month = '0' + month;
-  }
-  let date = new String(now.getDate());
-  if (date.length === 1) {
-    date = '0' + date;
-  }
-  const filename = 'hn-cli-' + year + month + date;
-  fs.appendFile('/tmp/' + filename,
-                msg + '\n',
-                () => {});
+  const dateStr = getDateStr(now);
+  const ymd = dateStr.split(' ')[0];
+  const path = logBasePath + logFilePrefix + ymd;
+  const data = dateStr + ' ' + msg + '\n';
+  fs.appendFile(path, data, () => {});
 };
 
-const formatDate = (ts) => {
-  ts = ts * 1000;
-  const dateObj = new Date(ts);
+const getDateStr = (dateObj) => {
+  if (dateObj instanceof Date &&
+      'function' !== typeof dateObj.getFullYear) {
+    return 'xxxx-xx-xx xx:xx';
+  }
   const year = new String(dateObj.getFullYear());
   let month = new String(dateObj.getMonth() + 1);
   if (month.length === 1) {
