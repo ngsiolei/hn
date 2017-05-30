@@ -10,6 +10,7 @@ let itemsCache = {};
 let topStoryIds = [];
 let storiesPerPage = 10;
 let currentPage = 1;
+let lastPage = 1;
 const logFilePrefix = 'hn-cli-';
 const logBasePath = '/tmp/';
 
@@ -59,7 +60,9 @@ term.on('key', (key) => {
       }
       break;
     case 'l':
-      createMenu(currentPage + 1);
+      if (currentPage < lastPage) {
+        createMenu(currentPage + 1);
+      }
       break;
     case 'c':
       if (columnMenu && columnMenu.focusChild) {
@@ -84,6 +87,7 @@ updateStatus('downloading...');
 
 db.ref('v0/topstories').once('value', (snapshot) => {
   topStoryIds = snapshot.val();
+  lastPage = Math.ceil(topStoryIds.length / storiesPerPage);
   log('top story IDs fetched');
   createMenu(1);
 }, (err) => {
