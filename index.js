@@ -17,6 +17,13 @@ const logBasePath = '/tmp/';
 term.grabInput({mouse: false});
 term.clear();
 
+const updateTitle = () => {
+  const msg = ' Hacker News Top Stories, page ' + currentPage;
+  term.saveCursor();
+  term.moveTo.eraseLine(2, 2, '%s\n', msg);
+  term.restoreCursor();
+};
+
 const updateStoryMeta = () => {
   let msg = '';
   if (columnMenu && columnMenu.focusChild) {
@@ -31,7 +38,7 @@ const updateStoryMeta = () => {
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term.moveTo.eraseLine(1, 20, '%s\n', msg);
+  term.moveTo.eraseLine(2, 20, '%s\n', msg);
   term.restoreCursor();
 };
 
@@ -41,7 +48,7 @@ const updateStatus = (msg) => {
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term.moveTo.eraseLine(1, 22, '%s\n', msg);
+  term.moveTo.eraseLine(2, 22, '%s\n', msg);
   term.restoreCursor();
 };
 
@@ -118,8 +125,8 @@ const createMenu = (page) => {
       columnMenu.destroy();
     }
     columnMenu = termkit.ColumnMenu.create({
-      buttonFocusAttr: {bgColor: 'white', color: 'black', bold: false},
-      buttonBlurAttr: {bgColor: 'black', color: 'white', bold: false},
+      x: 1,
+      y: 3,
       keyBindings: {j: 'next', k: 'previous', UP: 'previous', DOWN: 'next'},
       parent: document,
       items: items,
@@ -136,6 +143,7 @@ const createMenu = (page) => {
       }
     });
     document.giveFocusTo(columnMenu);
+    updateTitle();
     updateStatus();
     updateStoryMeta();
   }, (reason) => {
