@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs');
 const util = require('util');
 const firebase = require('firebase');
@@ -138,7 +140,7 @@ const createMenu = (page) => {
     const maxIndexDigit = new String(maxIndex).length;
     values.forEach((v, i) => {
       let index = (currentPage - 1) * storiesPerPage + (i + 1);
-      indexDigit = new String(index).length;
+      const indexDigit = new String(index).length;
       const diff = maxIndexDigit - indexDigit;
       for (let j = 0; j < diff; j++) {
         index = ' ' + index;
