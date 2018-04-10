@@ -29,7 +29,11 @@ const updateTitle = () => {
   const y = 2;
   const msg = ' Hacker News Top Stories, page ' + currentPage;
   term.saveCursor();
-  term.moveTo(x, y).bgBlack().white().eraseLine();
+  term
+    .moveTo(x, y)
+    .bgBlack()
+    .white()
+    .eraseLine();
   term.moveTo(x, y, '%s\n', msg);
   term.restoreCursor();
 };
@@ -45,42 +49,54 @@ const updateStoryMeta = () => {
       v.by,
       getDateStr(new Date(v.time * 1000)),
       v.score ? v.score : 0,
-      v.descendants ? v.descendants : 0
+      v.descendants ? v.descendants : 0,
     );
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term.moveTo(x, y).bgBlack().white().eraseLine();
+  term
+    .moveTo(x, y)
+    .bgBlack()
+    .white()
+    .eraseLine();
   term.moveTo(x, y, '%s\n', msg);
   term.restoreCursor();
 };
 
-const updateStatus = (msg) => {
+const updateStatus = msg => {
   const x = 2;
   const y = 20;
   if (!msg) {
     msg = [
-     'j: down',
-     ' | ',
-     'k: up',
-     ' | ',
-     'h: prev page',
-     ' | ',
-     'l: next page',
-     ' | ',
-     'c: open comment',
+      'j: down',
+      ' | ',
+      'k: up',
+      ' | ',
+      'h: prev page',
+      ' | ',
+      'l: next page',
+      ' | ',
+      'c: open comment',
     ].join('');
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term.moveTo(x, y).bgBlack().white().eraseLine();
+  term
+    .moveTo(x, y)
+    .bgBlack()
+    .white()
+    .eraseLine();
   term.moveTo(x, y, '%s\n', msg);
-  term.moveTo(x, y + 1).bgBlack().white().eraseLine();
+  term
+    .moveTo(x, y + 1)
+    .bgBlack()
+    .white()
+    .eraseLine();
   term.moveTo(x, y + 1, '%s\n', ' q: quit');
   term.restoreCursor();
 };
 
-term.on('key', (key) => {
+term.on('key', key => {
   switch (key) {
     case 'q':
     case 'CTRL_C':
@@ -107,7 +123,7 @@ term.on('key', (key) => {
         const v = columnMenu.focusChild.value;
         const commentLink = util.format(
           'https://news.ycombinator.com/item?id=%s',
-          v.id
+          v.id,
         );
         open(commentLink);
       }
@@ -118,118 +134,132 @@ term.on('key', (key) => {
 });
 
 firebase.initializeApp({
-  databaseURL: 'https://hacker-news.firebaseio.com'
+  databaseURL: 'https://hacker-news.firebaseio.com',
 });
 const db = firebase.database();
 updateStatus('downloading...');
 
-db.ref('v0/topstories').once('value', (snapshot) => {
-  topStoryIds = snapshot.val();
-  lastPage = Math.ceil(topStoryIds.length / storiesPerPage);
-  log('top story IDs fetched');
-  createMenu(1);
-}, (err) => {
-  log(err);
-});
+db.ref('v0/topstories').once(
+  'value',
+  snapshot => {
+    topStoryIds = snapshot.val();
+    lastPage = Math.ceil(topStoryIds.length / storiesPerPage);
+    log('top story IDs fetched');
+    createMenu(1);
+  },
+  err => {
+    log(err);
+  },
+);
 
-const createMenu = (page) => {
-  fetchItemsByPage(page).then((values) => {
-    currentPage = page;
-    let items = [];
-    const maxIndex = (currentPage - 1) * storiesPerPage + values.length;
-    const maxIndexDigit = new String(maxIndex).length;
-    values.forEach((v, i) => {
-      let index = (currentPage - 1) * storiesPerPage + (i + 1);
-      const indexDigit = new String(index).length;
-      const diff = maxIndexDigit - indexDigit;
-      for (let j = 0; j < diff; j++) {
-        index = ' ' + index;
-      }
-      items.push({
-        content: index + ') ' + v.title,
-        value: v
+const createMenu = page => {
+  fetchItemsByPage(page).then(
+    values => {
+      currentPage = page;
+      let items = [];
+      const maxIndex = (currentPage - 1) * storiesPerPage + values.length;
+      const maxIndexDigit = new String(maxIndex).length;
+      values.forEach((v, i) => {
+        let index = (currentPage - 1) * storiesPerPage + (i + 1);
+        const indexDigit = new String(index).length;
+        const diff = maxIndexDigit - indexDigit;
+        for (let j = 0; j < diff; j++) {
+          index = ' ' + index;
+        }
+        items.push({
+          content: index + ') ' + v.title,
+          value: v,
+        });
       });
-    });
-    if (columnMenu &&
+      if (
+        columnMenu &&
         columnMenu.destroy &&
-        'function' === typeof columnMenu.destroy) {
-      columnMenu.destroy();
-    }
-    columnMenu = termkit.ColumnMenu.create({
-      x: 1,
-      y: 3,
-      keyBindings: {j: 'next', k: 'previous', UP: 'previous', DOWN: 'next'},
-      parent: document,
-      items: items,
-      buttonFocusAttr: { bgColor: 'white', color: 'black', bold: false},
-      buttonBlurAttr: { bgColor: 'black', color: 'white', bold: false},
-    });
-    columnMenu.on('submit', (value) => {
-      if (value.url) {
-        open(value.url);
-      } else if (value.id) {
-        const commentLink = util.format(
-          'https://news.ycombinator.com/item?id=%s',
-          value.id
-        );
-        open(commentLink);
+        'function' === typeof columnMenu.destroy
+      ) {
+        columnMenu.destroy();
       }
-    });
-    document.giveFocusTo(columnMenu);
-    updateTitle();
-    updateStatus();
-    updateStoryMeta();
-  }, (reason) => {
-    log(reason);
-  });
+      columnMenu = termkit.ColumnMenu.create({
+        x: 1,
+        y: 3,
+        keyBindings: {j: 'next', k: 'previous', UP: 'previous', DOWN: 'next'},
+        parent: document,
+        items: items,
+        buttonFocusAttr: {bgColor: 'white', color: 'black', bold: false},
+        buttonBlurAttr: {bgColor: 'black', color: 'white', bold: false},
+      });
+      columnMenu.on('submit', value => {
+        if (value.url) {
+          open(value.url);
+        } else if (value.id) {
+          const commentLink = util.format(
+            'https://news.ycombinator.com/item?id=%s',
+            value.id,
+          );
+          open(commentLink);
+        }
+      });
+      document.giveFocusTo(columnMenu);
+      updateTitle();
+      updateStatus();
+      updateStoryMeta();
+    },
+    reason => {
+      log(reason);
+    },
+  );
 };
 
-const fetchItem = (id) => {
+const fetchItem = id => {
   return new Promise((resolve, reject) => {
     if (itemsCache[id]) {
       log('hitting item ' + id + ' in cache');
       resolve(itemsCache[id]);
     } else {
       log('fetching item ' + id);
-      db.ref('v0/item/' + id).once('value', (snapshot) => {
-        itemsCache[id] = snapshot.val();
-        resolve(itemsCache[id]);
-      }, (err) => {
-        reject(err);
-      });
+      db.ref('v0/item/' + id).once(
+        'value',
+        snapshot => {
+          itemsCache[id] = snapshot.val();
+          resolve(itemsCache[id]);
+        },
+        err => {
+          reject(err);
+        },
+      );
     }
   });
 };
 
-const fetchItems = (ids) => {
+const fetchItems = ids => {
   if (!ids || !ids.length) {
     return Promise.resolve([]);
   } else {
-    return Promise.all(ids.map((id) => {
-      return fetchItem(id);
-    }));
+    return Promise.all(
+      ids.map(id => {
+        return fetchItem(id);
+      }),
+    );
   }
 };
 
-const fetchItemsByPage = (page) => {
+const fetchItemsByPage = page => {
   const start = (page - 1) * storiesPerPage;
   const end = page * storiesPerPage;
   const ids = topStoryIds.slice(start, end);
   return fetchItems(ids);
 };
 
-const log = (msg) => {
+const log = msg => {
   const now = new Date();
   const dateStr = getDateStr(now);
   const ymd = dateStr.split(' ')[0];
   const path = logBasePath + logFilePrefix + ymd;
   const data = dateStr + ' ' + msg + '\n';
-  fs.appendFile(path, data, (err) => {});
+  fs.appendFile(path, data, err => {});
 };
 
-const getDateStr = (dateObj) => {
-  if (dateObj instanceof Date &&
-      'function' !== typeof dateObj.getFullYear) {
+const getDateStr = dateObj => {
+  if (dateObj instanceof Date && 'function' !== typeof dateObj.getFullYear) {
     return 'xxxx-xx-xx xx:xx';
   }
   const year = new String(dateObj.getFullYear());
