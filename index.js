@@ -3,7 +3,7 @@ const util = require('util');
 const firebase = require('firebase');
 const open = require('open');
 const termkit = require('terminal-kit');
-const term = termkit.terminal;
+const term = termkit.createTerminal();
 const document = term.createDocument();
 let columnMenu = null;
 let itemsCache = {};
@@ -18,18 +18,23 @@ term.grabInput({mouse: false});
 term.clear();
 
 const updateTitle = () => {
+  const x = 2;
+  const y = 2;
   const msg = ' Hacker News Top Stories, page ' + currentPage;
   term.saveCursor();
-  term.moveTo.eraseLine(2, 2, '%s\n', msg);
+  term.moveTo(x, y).bgBlack().white().eraseLine();
+  term.moveTo(x, y, '%s\n', msg);
   term.restoreCursor();
 };
 
 const updateStoryMeta = () => {
+  const x = 2;
+  const y = 18;
   let msg = '';
   if (columnMenu && columnMenu.focusChild) {
     const v = columnMenu.focusChild.value;
     msg = util.format(
-      'by %s, at %s, score: %s, comments: %s (c: open comment page)',
+      'by %s, at %s, score: %s, comments: %s',
       v.by,
       getDateStr(new Date(v.time * 1000)),
       v.score ? v.score : 0,
@@ -38,35 +43,54 @@ const updateStoryMeta = () => {
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term.moveTo.eraseLine(2, 20, '%s\n', msg);
+  term.moveTo(x, y).bgBlack().white().eraseLine();
+  term.moveTo(x, y, '%s\n', msg);
   term.restoreCursor();
 };
 
 const updateStatus = (msg) => {
+  const x = 2;
+  const y = 20;
   if (!msg) {
-    msg = 'j: down | k: up | h: prev page | l: next page | ctrl-c: exit';
+    msg = [
+     'j: down',
+     ' | ',
+     'k: up',
+     ' | ',
+     'h: prev page',
+     ' | ',
+     'l: next page',
+     ' | ',
+     'c: open comment',
+    ].join('');
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term.moveTo.eraseLine(2, 22, '%s\n', msg);
+  term.moveTo(x, y).bgBlack().white().eraseLine();
+  term.moveTo(x, y, '%s\n', msg);
+  term.moveTo(x, y + 1).bgBlack().white().eraseLine();
+  term.moveTo(x, y + 1, '%s\n', ' q: quit');
   term.restoreCursor();
 };
 
 term.on('key', (key) => {
   switch (key) {
+    case 'q':
     case 'CTRL_C':
-      term.grabInput( false );
-      term.hideCursor( false );
+      term.grabInput(false);
+      term.hideCursor(false);
       term.styleReset();
       term.clear();
       process.exit();
       break;
     case 'h':
+    case 'LEFT':
       if (currentPage > 1) {
         createMenu(currentPage - 1);
       }
       break;
     case 'l':
+    case 'RIGHT':
       if (currentPage < lastPage) {
         createMenu(currentPage + 1);
       }
@@ -130,6 +154,8 @@ const createMenu = (page) => {
       keyBindings: {j: 'next', k: 'previous', UP: 'previous', DOWN: 'next'},
       parent: document,
       items: items,
+      buttonFocusAttr: { bgColor: 'white', color: 'black', bold: false},
+      buttonBlurAttr: { bgColor: 'black', color: 'white', bold: false},
     });
     columnMenu.on('submit', (value) => {
       if (value.url) {
@@ -191,7 +217,7 @@ const log = (msg) => {
   const ymd = dateStr.split(' ')[0];
   const path = logBasePath + logFilePrefix + ymd;
   const data = dateStr + ' ' + msg + '\n';
-  fs.appendFile(path, data, () => {});
+  fs.appendFile(path, data, (err) => {});
 };
 
 const getDateStr = (dateObj) => {
