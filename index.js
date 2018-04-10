@@ -16,6 +16,11 @@ const logBasePath = '/tmp/';
 
 term.grabInput({mouse: false});
 term.clear();
+term.on('resize', (w, h) => {
+  updateTitle();
+  updateStatus();
+  updateStoryMeta();
+});
 
 const updateTitle = () => {
   const x = 2;
