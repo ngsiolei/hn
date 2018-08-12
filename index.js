@@ -178,10 +178,16 @@ const createMenu = page => {
       ) {
         columnMenu.destroy();
       }
-      columnMenu = termkit.ColumnMenu.create({
+      columnMenu = new termkit.ColumnMenu({
         x: 1,
         y: 3,
-        keyBindings: {j: 'next', k: 'previous', UP: 'previous', DOWN: 'next'},
+        keyBindings: {
+          j: 'next',
+          k: 'previous',
+          UP: 'previous',
+          DOWN: 'next',
+          ENTER: 'submit',
+        },
         parent: document,
         items: items,
         buttonFocusAttr: {bgColor: 'white', color: 'black', bold: false},
