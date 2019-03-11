@@ -125,7 +125,9 @@ term.on('key', key => {
           'https://news.ycombinator.com/item?id=%s',
           v.id,
         );
-        open(commentLink);
+        open(commentLink).catch(err => {
+          log(err);
+        });
       }
       break;
     default:
@@ -195,13 +197,17 @@ const createMenu = page => {
       });
       columnMenu.on('submit', value => {
         if (value.url) {
-          open(value.url);
+          open(value.url).catch(err => {
+            log(err);
+          });
         } else if (value.id) {
           const commentLink = util.format(
             'https://news.ycombinator.com/item?id=%s',
             value.id,
           );
-          open(commentLink);
+          open(commentLink).catch(err => {
+            log(err);
+          });
         }
       });
       document.giveFocusTo(columnMenu);
