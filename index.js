@@ -170,7 +170,7 @@ const createMenu = page => {
           index = ' ' + index;
         }
         items.push({
-          content: index + ') ' + v.title,
+          content: index + ') ' + v.title.replace(/(^\s+)|(\s+$)/, ''),
           value: v,
         });
       });
