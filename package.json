@@ -11,6 +11,6 @@
   "dependencies": {
     "firebase": "^6.6.2",
     "opn": "^5.5.0",
-    "terminal-kit": "^1.31.10"
+    "terminal-kit": "^1.33.7"
   }
 }
