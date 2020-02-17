@@ -1,4 +1,4 @@
-# hn-cli
+# hn
 A simple Hacker News terminal client.
 
 ## Prerequistes
