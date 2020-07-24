@@ -17,7 +17,7 @@ let lastPage = 1;
 const logFilePrefix = 'hn-cli-';
 const logBasePath = '/tmp/';
 
-term.grabInput({mouse: false});
+term.grabInput({ mouse: false });
 term.clear();
 term.on('resize', (w, h) => {
   updateTitle();
@@ -193,8 +193,8 @@ const createMenu = page => {
         },
         parent: document,
         items: items,
-        buttonFocusAttr: {bgColor: 'white', color: 'black', bold: false},
-        buttonBlurAttr: {bgColor: 'black', color: 'white', bold: false},
+        buttonFocusAttr: { bgColor: 'white', color: 'black', bold: false },
+        buttonBlurAttr: { bgColor: 'black', color: 'white', bold: false },
       });
       columnMenu.on('submit', value => {
         if (value.url) {
@@ -276,21 +276,19 @@ const getDateStr = dateObj => {
     return 'xxxx-xx-xx xx:xx';
   }
   const year = new String(dateObj.getFullYear());
-  let month = new String(dateObj.getMonth() + 1);
-  if (month.length === 1) {
-    month = '0' + month;
-  }
-  let date = new String(dateObj.getDate());
-  if (date.length === 1) {
-    date = '0' + date;
-  }
-  let hour = new String(dateObj.getHours());
-  if (hour.length === 1) {
-    hour = '0' + hour;
-  }
-  let minute = new String(dateObj.getMinutes());
-  if (minute.length === 1) {
-    minute = '0' + minute;
-  }
-  return year + '-' + month + '-' + date + ' ' + hour + ':' + minute;
+  const month = new String(dateObj.getMonth() + 1);
+  const date = new String(dateObj.getDate());
+  const hour = new String(dateObj.getHours());
+  const minute = new String(dateObj.getMinutes());
+  return [
+    year,
+    '-',
+    1 === month.length ? '0' + month : month,
+    '-',
+    1 === date.length ? '0' + date : date,
+    ' ',
+    1 === hour.length ? '0' + hour : hour,
+    ':',
+    1 === minute.length ? '0' + minute : minute,
+  ].join('');
 };
