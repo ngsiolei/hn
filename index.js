@@ -48,7 +48,7 @@ const updateStoryMeta = () => {
     msg = util.format(
       'by %s, at %s, score: %s, comments: %s',
       v.by,
-      getDateStr(new Date(v.time * 1000)),
+      formatDate(new Date(v.time * 1000)),
       v.score ? v.score : 0,
       v.descendants ? v.descendants : 0,
     );
@@ -264,14 +264,14 @@ const fetchItemsByPage = page => {
 
 const log = msg => {
   const now = new Date();
-  const dateStr = getDateStr(now);
+  const dateStr = formatDate(now);
   const ymd = dateStr.split(' ')[0];
   const path = logBasePath + logFilePrefix + ymd;
   const data = dateStr + ' ' + msg + '\n';
   fs.appendFile(path, data, err => {});
 };
 
-const getDateStr = dateObj => {
+const formatDate = dateObj => {
   if (dateObj instanceof Date && 'function' !== typeof dateObj.getFullYear) {
     return 'xxxx-xx-xx xx:xx';
   }
