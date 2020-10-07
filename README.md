@@ -2,7 +2,7 @@
 A simple Hacker News terminal client.
 
 ## Prerequistes
-* Node 8+
+* Node 10 or above
 
 ## Installation
 1. Clone the repository

@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase": "^6.6.2",
+    "firebase": "^7.22.1",
     "opn": "^5.5.0",
-    "terminal-kit": "^1.42.0"
+    "terminal-kit": "^1.43.0"
   }
 }
