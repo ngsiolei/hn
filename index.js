@@ -30,11 +30,7 @@ const updateTitle = () => {
   const y = 2;
   const msg = ' Hacker News Top Stories, page ' + currentPage;
   term.saveCursor();
-  term
-    .moveTo(x, y)
-    .bgBlack()
-    .white()
-    .eraseLine();
+  term.moveTo(x, y).bgBlack().white().eraseLine();
   term.moveTo(x, y, '%s\n', msg);
   term.restoreCursor();
 };
@@ -50,16 +46,12 @@ const updateStoryMeta = () => {
       v.by,
       formatDate(new Date(v.time * 1000)),
       v.score ? v.score : 0,
-      v.descendants ? v.descendants : 0,
+      v.descendants ? v.descendants : 0
     );
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term
-    .moveTo(x, y)
-    .bgBlack()
-    .white()
-    .eraseLine();
+  term.moveTo(x, y).bgBlack().white().eraseLine();
   term.moveTo(x, y, '%s\n', msg);
   term.restoreCursor();
 };
@@ -82,11 +74,7 @@ const updateStatus = msg => {
   }
   msg = ' ' + msg;
   term.saveCursor();
-  term
-    .moveTo(x, y)
-    .bgBlack()
-    .white()
-    .eraseLine();
+  term.moveTo(x, y).bgBlack().white().eraseLine();
   term.moveTo(x, y, '%s\n', msg);
   term
     .moveTo(x, y + 1)
@@ -122,13 +110,15 @@ term.on('key', key => {
     case 'c':
       if (columnMenu && columnMenu.focusChild) {
         const v = columnMenu.focusChild.value;
-        const commentLink = util.format(
-          'https://news.ycombinator.com/item?id=%s',
-          v.id,
-        );
-        open(commentLink).catch(err => {
-          log(err);
-        });
+        if (v.id) {
+          const commentLink = util.format(
+            'https://news.ycombinator.com/item?id=%s',
+            v.id
+          );
+          open(commentLink).catch(err => {
+            log(err);
+          });
+        }
       }
       break;
     default:
@@ -152,7 +142,7 @@ db.ref('v0/topstories').once(
   },
   err => {
     log(err);
-  },
+  }
 );
 
 const createMenu = page => {
@@ -169,9 +159,19 @@ const createMenu = page => {
         for (let j = 0; j < diff; j++) {
           index = ' ' + index;
         }
+        const val = v
+          ? v
+          : {
+              id: null,
+              title: '---',
+              by: '-',
+              time: null,
+              score: '-',
+              descendants: '-',
+            };
         items.push({
-          content: index + ') ' + v.title.replace(/(^\s+)|(\s+$)/, ''),
-          value: v,
+          content: index + ') ' + val.title.replace(/(^\s+)|(\s+$)/, ''),
+          value: val,
         });
       });
       if (
@@ -204,7 +204,7 @@ const createMenu = page => {
         } else if (value.id) {
           const commentLink = util.format(
             'https://news.ycombinator.com/item?id=%s',
-            value.id,
+            value.id
           );
           open(commentLink).catch(err => {
             log(err);
@@ -218,7 +218,7 @@ const createMenu = page => {
     },
     reason => {
       log(reason);
-    },
+    }
   );
 };
 
@@ -237,7 +237,7 @@ const fetchItem = id => {
         },
         err => {
           reject(err);
-        },
+        }
       );
     }
   });
@@ -250,7 +250,7 @@ const fetchItems = ids => {
     return Promise.all(
       ids.map(id => {
         return fetchItem(id);
-      }),
+      })
     );
   }
 };
