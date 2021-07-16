@@ -4,7 +4,7 @@ const fs = require('fs');
 const util = require('util');
 const firebase = require('firebase/app');
 require('firebase/database');
-const open = require('opn');
+const open = require('open');
 const termkit = require('terminal-kit');
 const term = termkit.createTerminal();
 const document = term.createDocument();
