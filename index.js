@@ -159,7 +159,7 @@ const createMenu = page => {
         for (let j = 0; j < diff; j++) {
           index = ' ' + index;
         }
-        const val = v
+        const val = v && v.id && v.title
           ? v
           : {
               id: null,
