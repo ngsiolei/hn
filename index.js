@@ -35,12 +35,13 @@ const updateTitle = () => {
   term.restoreCursor();
 };
 
-const updateStoryMeta = () => {
+const updateStoryMeta = item => {
   const x = 2;
   const y = 18;
   let msg = '';
-  if (columnMenu && columnMenu.focusChild) {
-    const v = columnMenu.focusChild.value;
+  const v =
+    columnMenu && columnMenu.focusChild ? columnMenu.focusChild.value : item;
+  if (v) {
     msg = util.format(
       'by %s, at %s, score: %s, comments: %s',
       v.by,
@@ -159,16 +160,17 @@ const createMenu = page => {
         for (let j = 0; j < diff; j++) {
           index = ' ' + index;
         }
-        const val = v && v.id && v.title
-          ? v
-          : {
-              id: null,
-              title: '---',
-              by: '-',
-              time: null,
-              score: '-',
-              descendants: '-',
-            };
+        const val =
+          v && v.id && v.title
+            ? v
+            : {
+                id: null,
+                title: '---',
+                by: '-',
+                time: null,
+                score: '-',
+                descendants: '-',
+              };
         items.push({
           content: index + ') ' + val.title.replace(/(^\s+)|(\s+$)/, ''),
           value: val,
@@ -211,10 +213,12 @@ const createMenu = page => {
           });
         }
       });
+      columnMenu.on('itemFocus', item => {
+        updateStoryMeta(item);
+      });
       document.giveFocusTo(columnMenu);
       updateTitle();
       updateStatus();
-      updateStoryMeta();
     },
     reason => {
       log(reason);
