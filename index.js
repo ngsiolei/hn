@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const util = require('util');
-const firebase = require('firebase/compat/app');
-require('firebase/compat/database');
+const { initializeApp } = require('firebase/app');
+const { getDatabase, ref, child, get } = require('firebase/database');
 const open = require('open');
 const termkit = require('terminal-kit');
 const term = termkit.createTerminal();
@@ -127,24 +127,24 @@ term.on('key', key => {
   }
 });
 
-firebase.initializeApp({
+const firebaseApp = initializeApp({
+  projectId: 'hacker-news',
   databaseURL: 'https://hacker-news.firebaseio.com',
 });
-const db = firebase.database();
+const db = ref(getDatabase(firebaseApp));
 updateStatus('downloading...');
 
-db.ref('v0/topstories').once(
-  'value',
-  snapshot => {
+get(child(db, 'v0/topstories'))
+  .then(snapshot => {
     topStoryIds = snapshot.val();
     lastPage = Math.ceil(topStoryIds.length / storiesPerPage);
     log('top story IDs fetched');
     createMenu(1);
-  },
-  err => {
+  })
+  .catch(err => {
     log(err);
-  }
-);
+    updateStatus(err);
+  });
 
 const createMenu = page => {
   fetchItemsByPage(page).then(
@@ -233,16 +233,15 @@ const fetchItem = id => {
       resolve(itemsCache[id]);
     } else {
       log('fetching item ' + id);
-      db.ref('v0/item/' + id).once(
-        'value',
-        snapshot => {
+      get(child(db, 'v0/item/' + id))
+        .then(snapshot => {
           itemsCache[id] = snapshot.val();
           resolve(itemsCache[id]);
-        },
-        err => {
+        })
+        .catch(err => {
           reject(err);
-        }
-      );
+          updateStatus(err);
+        });
     }
   });
 };
