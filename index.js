@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs');
-const util = require('util');
+const fs = require('node:fs');
+const util = require('node:util');
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, child, get } = require('firebase/database');
 const open = require('open');
